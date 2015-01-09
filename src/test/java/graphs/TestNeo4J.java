@@ -1,9 +1,7 @@
 package graphs;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,56 +11,83 @@ import nlp.TripletExtractor;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import util.Utils;
+
 public class TestNeo4J {
-	private final String DB_URL = "C:/Users/Alex/Documents/Neo4j/test"; 
-	private final String TEST_TEXT = "books/itaTranslated.txt"; 
+	private final String DB_URL = "C:/Users/Alex/Documents/Neo4j/rispTest"; 
+	private final String TEST_FILE = "books/myConv/sherryRisp.txt"; 
 	private final String TEST_OUT = "src/main/resources/out/test.txt"; 
+	private final String TEST_FOLDER = "src/main/resources/books/myConv/";
+	private final String TEST_FOLDER_NAME = "books/myConv/";
 	
 	Neo4JDb db;
 
-	@Before
+	@BeforeClass
 	public void prepareTestDatabase() {
 		db = new Neo4JDb(DB_URL);
+		//TODO
 		//db.createIndexes();
 	}
 
-	@After
+	@AfterClass
 	public void destroyTestDatabase() {
 		db.shutdown();
 	}
 
 	@Test
-	public void testPrint() throws IOException {
+	public void testPrint() {
 		db.writeOutContent(TEST_OUT);
 	}
 	
 	@Test
-	public void basicNeo4JTest() throws IOException {
-		neo4JTest(TEST_TEXT);
+	public void SingleNeo4JTest() {
+		neo4JTest(TEST_FILE);
 	}
 	
 	@Test
-	public void extractRandomRel() throws IOException {
+	public void extractRandomRels() {
+		int NUM_RELS = 30;
+		int MAX_REL_ID = 400;
 		Random rand = new Random();
 		TripletRelation rel;
-		for (int i=0; i<100; i++){
-			int id = rand.nextInt(9000);
+		for (int i=0; i<NUM_RELS; i++){
+			int id = rand.nextInt(MAX_REL_ID);
 			rel = db.getRelation(Integer.toUnsignedLong(id));
 			System.out.println(rel.getArg1() + "; " + rel.getRelation() + "; " 
 			+ rel.getArg2() + "; " + rel.getConfidence());
 		}
 	}
-
-	private void neo4JTest(String fileName) throws IOException {
+	
+	@Test
+	public void iterateFolderExtraction() throws IOException{	
+		List<String> docs = Utils.getAllFilenames(TEST_FOLDER);
+		long startTime = System.currentTimeMillis();
+		System.out.println("Start iterateFolderExtraction");
+		for (String doc : docs){
+			neo4JTest(TEST_FOLDER_NAME + doc);
+		}
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		System.out.println("iterateFolderExtraction extraction ended in " + duration + "millis");
+	}
+	
+	private void neo4JTest(String fileName) {
 		System.out.println("----------------");
 		System.out.println(fileName);
-		InputStream testArticle = TestNeo4J.class.getClassLoader()
-				.getResourceAsStream(fileName);
-		String text = IOUtils.toString(testArticle, "UTF-8");
-		testArticle.close();
+		
+		String text = null;
+		try (InputStream testArticle = TestNeo4J.class.getClassLoader()
+				.getResourceAsStream(fileName);) {
+			text = IOUtils.toString(testArticle, "UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		System.out.println("Current text length: " + text.length());
 
 		TripletExtractor tExt = new TripletExtractor();
@@ -82,45 +107,7 @@ public class TestNeo4J {
 		long duration = endTime - startTime;
 		System.out.println("Extraction ended in " + duration + "millis");
 		System.out.println(rels.size() + "triplets founded");
-		System.out.println(countValid(rels) + "valid triplets");
 		System.out.println(numValid + "valid triplets");
 		System.out.println("Average conf = " + confTot/numValid);
-	}
-	
-	@Test
-	public void iterateFolderExtraction() throws IOException{	
-		List<String> docs = getAllFilenames("src/main/resources/books/");
-		long startTime = System.currentTimeMillis();
-		System.out.println("Start iterateFolderExtraction");
-		for (String doc : docs){
-			neo4JTest("books/" + doc);
-		}
-		long endTime = System.currentTimeMillis();
-		long duration = endTime - startTime;
-		System.out.println("iterateFolderExtraction extraction ended in " + duration + "millis");
-	}
-
-	private int countValid(List<TripletRelation> tList) {
-		int count = 0;
-		for (TripletRelation rel : tList) {
-			if (rel.isComplete())
-				count++;
-		}
-		return count;
-	}
-	
-	private List<String> getAllFilenames(String folderPath){
-		File folder = new File(folderPath);
-		File[] listOfFiles = folder.listFiles();
-		List<String> filenames = new ArrayList<String>();
-
-		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile()) {
-		        filenames.add(listOfFiles[i].getName());
-		        //System.out.println(listOfFiles[i].getName());
-		    }
-		}
-		
-		return filenames;
 	}
 }

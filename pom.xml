@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>edu.unitn.sagado</groupId>
-	<artifactId>data-integration-project</artifactId>
+	<groupId>edu.sagado</groupId>
+	<artifactId>knowledge-extraction</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Data Integration Project</name>
-	<description>Data Integration Project on Knowledge Extraction</description>
+	<name>Knowledge Extraction</name>
+	<description>From Natural Language Text to Graph Database</description>
 
 	<dependencies>
 		<dependency>
@@ -45,6 +45,11 @@
 			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-core</artifactId>
+	<version>3.0.6.RELEASE</version>
+</dependency>
 		<!-- <dependency>
 			<groupId>edu.washington.cs.knowitall.openie</groupId>
 			<artifactId>openie_2.10</artifactId>

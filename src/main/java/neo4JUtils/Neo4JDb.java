@@ -17,7 +17,6 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -119,12 +118,12 @@ public class Neo4JDb {
 		graphDb.shutdown();
 	}
 
-	public void writeOutContent(String filename) throws IOException {
-		FileWriter writer = new FileWriter(filename);
+	public void writeOutContent(String filename) {
 		GlobalGraphOperations ops = GlobalGraphOperations.at(graphDb);
 		ExecutionEngine engine = new ExecutionEngine(graphDb);
 
-		try (Transaction tx = graphDb.beginTx()) {
+		try (FileWriter writer = new FileWriter(filename);
+				Transaction tx = graphDb.beginTx()) {
 			for (Node n : ops.getAllNodes()) {
 				writer.write("[" + n.getId() + "," + n.getProperty(PROP_NAME)
 						+ ",[");
@@ -144,9 +143,9 @@ public class Neo4JDb {
 				writer.write("]]\n");
 			}
 			tx.success();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-
-		writer.close();
 	}
 	
 	public TripletRelation getRelation(long id){

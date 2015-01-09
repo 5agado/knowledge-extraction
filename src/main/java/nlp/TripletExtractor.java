@@ -18,8 +18,12 @@ public class TripletExtractor {
 	private SentenceDetector detector;
 	private ReVerbExtractor reverb;
 	
-	public TripletExtractor() throws IOException {
-		chunker = new OpenNlpSentenceChunker();
+	public TripletExtractor() {
+		try {
+			chunker = new OpenNlpSentenceChunker();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		detector = new SentenceDetector(Consts.EN_SENT_MODEL);
 		reverb = new ReVerbExtractor();
 	}

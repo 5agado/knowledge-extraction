@@ -23,7 +23,7 @@ import util.Consts;
 import util.Utils;
 
 public class BasicActions {	
-	private static final String TEST_TEXT = "books/itaTranslated.txt"; 
+	private static final String TEST_TEXT = "books/myConv/myRisp.txt";; 
 	private static final String TEST_PHRASE = "Michael McGinn is the mayor of Seattle.";
 	
 	@Test
